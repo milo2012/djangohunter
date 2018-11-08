@@ -5,7 +5,7 @@
   
  ### Usage
  ```
-Usage: python3 djangohunter.py -f urls.txt
+Usage: python djangohunter.py -f urls.txt
 
 ```
 ### Disclaimer
